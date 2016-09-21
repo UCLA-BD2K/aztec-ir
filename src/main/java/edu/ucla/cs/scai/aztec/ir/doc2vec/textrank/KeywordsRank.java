@@ -4,7 +4,7 @@ import edu.ucla.cs.scai.aztec.ir.tokenization.TermToken;
 import edu.ucla.cs.scai.aztec.ir.tokenization.TermTokenizedDocument;
 import edu.ucla.cs.scai.aztec.ir.tokenization.TermTokenizedSentence;
 import edu.ucla.cs.scai.aztec.ir.tokenization.WeightedTermToken;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import net.sf.extjwnl.JWNLException;
 
 /**
  *
@@ -26,12 +25,12 @@ public class KeywordsRank {
     double[] rank;
     Integer[] ordered;
 
-    public KeywordsRank(TermTokenizedDocument document, int... windowSizes) throws JWNLException, FileNotFoundException {
+    public KeywordsRank(TermTokenizedDocument document, int... windowSizes) {
 
         HashSet<TermToken> distinctTokens = new HashSet<>();
         LinkedList<TermToken> tokenList = new LinkedList<>();
-        for (TermTokenizedSentence tts:document) {
-            for (TermToken tt:tts) {
+        for (TermTokenizedSentence tts : document) {
+            for (TermToken tt : tts) {
                 distinctTokens.add(tt);
                 tokenList.addLast(tt);
             }
@@ -73,12 +72,12 @@ public class KeywordsRank {
                     g.addWeight(idw, idw2, 1.0 / (i - j));
                     g.addWeight(idw2, idw, 1.0 / (i - j));
                     j++;
-                }                
+                }
                 window.addLast(idw);
                 i++;
             }
         }
-        
+
         rank = g.computeNodeRank(0.85, 0.01);
         ordered = new Integer[n];
         for (int i = 0; i < n; i++) {
@@ -87,23 +86,27 @@ public class KeywordsRank {
         Arrays.sort(ordered, new RankComparator(rank));
     }
 
+    public ArrayList<WeightedTermToken> getWeightedTerms() {
+        return topWeightedTerms(ordered.length);
+    }
+
 //returns the keywords with the top-k rank
-    public List<TermToken> topKeywords(Integer k) {
+    public ArrayList<TermToken> topTerms(Integer k) {
         if (k == null) {
-            return topKeywords();
+            return topTerms();
         }
         if (k > keywords.size()) {
             k = keywords.size();
         }
-        LinkedList<TermToken> res = new LinkedList<>();
+        ArrayList<TermToken> res = new ArrayList<>();
         for (int i = 0; i < k; i++) {
             res.add(keywords.get(ordered[i]));
         }
         return res;
     }
 
-    public List<TermToken> topKeywords() {
-        LinkedList<TermToken> res = new LinkedList<>();
+    public ArrayList<TermToken> topTerms() {
+        ArrayList<TermToken> res = new ArrayList<>();
         double minRank = rank[ordered[0]] * 0.9;
         int i = 0;
         while (i < ordered.length && rank[ordered[i]] >= minRank) {
@@ -113,14 +116,14 @@ public class KeywordsRank {
         return res;
     }
 
-    public List<WeightedTermToken> topRankedKeywords(Integer k) {
+    public ArrayList<WeightedTermToken> topWeightedTerms(Integer k) {
         if (k == null) {
-            return topRankedKeywords();
+            return topWeightedTerms();
         }
         if (k > keywords.size()) {
             k = keywords.size();
         }
-        LinkedList<WeightedTermToken> res = new LinkedList<>();
+        ArrayList<WeightedTermToken> res = new ArrayList<>();
         for (int i = 0; i < k; i++) {
             res.add(new WeightedTermToken(keywords.get(ordered[i]), rank[ordered[i]]));
         }
@@ -128,8 +131,8 @@ public class KeywordsRank {
 
     }
 
-    public List<WeightedTermToken> topRankedKeywords() {
-        LinkedList<WeightedTermToken> res = new LinkedList<>();
+    public ArrayList<WeightedTermToken> topWeightedTerms() {
+        ArrayList<WeightedTermToken> res = new ArrayList<>();
         double minRank = rank[ordered[0]] * 0.9;
         int i = 0;
         while (i < ordered.length && rank[ordered[i]] >= minRank) {

@@ -15,10 +15,12 @@
  */
 package edu.ucla.cs.scai.aztec.ir.doc2vec;
 
+import edu.ucla.cs.scai.aztec.ir.doc2vec.textrank.KeywordsRank;
 import edu.ucla.cs.scai.aztec.ir.thesaurus.Thesaurus;
 import edu.ucla.cs.scai.aztec.ir.tokenization.TermToken;
 import edu.ucla.cs.scai.aztec.ir.tokenization.TermTokenizedDocument;
 import edu.ucla.cs.scai.aztec.ir.tokenization.TermTokenizer;
+import edu.ucla.cs.scai.aztec.ir.tokenization.WeightedTermToken;
 import edu.ucla.cs.scai.aztec.ir.tokenization.WordTokenizer;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +38,12 @@ public class TextRankDoc2VecConverter implements Doc2VecConverter {
         HashMap<Integer, HashMap<TermToken, Double>> res=new HashMap<>();
         for (Map.Entry<Integer, String> e:documents.entrySet()) {
             TermTokenizedDocument ttd=termTokenizer.tokenize(e.getValue(), wordTokenizer, thesaurus.getPhrases(), false);
-            
+            KeywordsRank kr=new KeywordsRank(ttd, 10);
+            HashMap<TermToken, Double> w=new HashMap<>();
+            for (WeightedTermToken wtt:kr.getWeightedTerms()) {
+                w.put(wtt.getToken(), wtt.getWeight());
+            }
+            res.put(e.getKey(), w);
         }
         return res;
     }
