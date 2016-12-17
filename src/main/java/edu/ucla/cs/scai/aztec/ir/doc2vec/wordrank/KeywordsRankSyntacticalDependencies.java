@@ -191,7 +191,7 @@ public class KeywordsRankSyntacticalDependencies {
     }
 
     public static void main(String[] args) throws JWNLException, FileNotFoundException {
-        KeywordsRankSyntacticalDependencies kr = new KeywordsRankSyntacticalDependencies("RNA-Seq technique has been demonstrated as a revolutionary means for exploring transcriptome because it provides deep coverage and base-pair level resolution. RNA-Seq quantification is proven to be an efficient alternative to Microarray technique in gene expression study, and is a critical component in RNA-Seq differential expression analysis.", 4);
+        KeywordsRankSyntacticalDependencies kr = new KeywordsRankSyntacticalDependencies("The Gene Ontology defines concepts used to describe gene functions.", 4);
         List<RankedString> kw = kr.topRankedKeywords(100);
         double sum = 0;
         for (RankedString s : kw) {

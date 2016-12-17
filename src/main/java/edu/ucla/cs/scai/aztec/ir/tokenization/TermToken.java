@@ -15,6 +15,10 @@
  */
 package edu.ucla.cs.scai.aztec.ir.tokenization;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +27,7 @@ import java.util.List;
  *
  * @author Giuseppe M. Mazzeo <mazzeo@cs.ucla.edu>
  */
-public class TermToken implements Comparable<TermToken> {
+public class TermToken implements Comparable<TermToken>, Externalizable {
 
     LinkedList<WordToken> tokenList;
 
@@ -136,6 +140,29 @@ public class TermToken implements Comparable<TermToken> {
             return -1;
         }
         return 0;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TermToken) {
+            return toString().equals(obj.toString());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }     
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(tokenList);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        tokenList=(LinkedList<WordToken>) in.readObject();
     }
 
 }

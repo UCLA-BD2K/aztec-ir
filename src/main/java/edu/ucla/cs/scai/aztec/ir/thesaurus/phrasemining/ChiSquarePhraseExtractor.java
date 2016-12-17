@@ -44,9 +44,9 @@ public class ChiSquarePhraseExtractor implements PhraseExtractor {
         this.criticalValue = criticalValue;
     }
 
-    public ChiSquarePhraseExtractor(int absoluteSupport, double criticalValue) {
+    public ChiSquarePhraseExtractor(int absoluteSupport) {
         this.absoluteSupport = absoluteSupport;
-        this.criticalValue = criticalValue;
+        this.criticalValue = 3.841;
     }
 
     private int count(HashMap<TermToken, Integer> map, TermToken key) { //utility method returning 0 when the key is not in the map
@@ -181,7 +181,7 @@ public class ChiSquarePhraseExtractor implements PhraseExtractor {
                 //the chi-square test, in the case of 2-by-2 tables, has a simple formula:
                 //N * (main diagonal - secondary diagona)^2 / product of marginals
                 double chiSquare = 1.0 * totalNplusOneGrams * Math.pow((1.0 * cW1W2 * cnW1nW2) - (1.0 * cW1nW2 * cnW1W2), 2) / (1.0 * cW1 * cW2 * cnW1 * cnW2);
-                if (chiSquare >= 3.841) { //a phrase has been found
+                if (chiSquare >= criticalValue) { //a phrase has been found
                     //System.out.println(nPlusOneGram+" Chi^2: "+chiSquare+" Freq: "+frequentNPlusGramCount.get(nPlusOneGram));
                     String[] p = nPlusOneGram.toString().split(" ");
                     String[] t = p[0].split("/");
@@ -207,7 +207,7 @@ public class ChiSquarePhraseExtractor implements PhraseExtractor {
             sentences = (ArrayList<WordTokenizedSentence>) oin.readObject();
         } catch (Exception e) {
             e.printStackTrace();
-            try (BufferedReader in = new BufferedReader(new FileReader("/home/massimo/Downloads/abstract_removeurl.txt"))) {
+            try (BufferedReader in = new BufferedReader(new FileReader("/home/massimo/Downloads/abstract_removeurl_full.txt"))) {
                 sentences = new ArrayList<>();
                 String l;
                 int i = 0;
@@ -224,7 +224,10 @@ public class ChiSquarePhraseExtractor implements PhraseExtractor {
                 }
             }
         }
-        new ChiSquarePhraseExtractor(20, 0.5).extractPhrases(sentences);
+        HashMap<TermToken, Integer> phrases=new ChiSquarePhraseExtractor(20).extractPhrases(sentences);
+        for (Map.Entry<TermToken, Integer> e:phrases.entrySet()) {
+            System.out.println(e.getKey()+" "+e.getValue());
+        }
 
     }
 }

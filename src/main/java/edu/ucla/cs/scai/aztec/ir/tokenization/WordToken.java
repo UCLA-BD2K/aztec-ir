@@ -15,22 +15,24 @@
  */
 package edu.ucla.cs.scai.aztec.ir.tokenization;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  *
  * @author Giuseppe M. Mazzeo <mazzeo@cs.ucla.edu>
  */
-public class WordToken implements Comparable<WordToken> {
+public class WordToken implements Comparable<WordToken>, Externalizable {
 
     String word;
     String lemma;
     String pos;
-    String synRepr;
     boolean lemmatized;
     boolean useLowerCase;
 
-    static {
-
-    }
+    public WordToken() {} //needed for initialing a WordToken read from file
 
     public WordToken(String word, String lemma, String pos) {
         this.word = word;
@@ -56,15 +58,15 @@ public class WordToken implements Comparable<WordToken> {
     public String toString() {
         if (lemmatized) {
             if (useLowerCase) {
-                return lemma.toLowerCase();// + "/" + pos.charAt(0);
+                return lemma.toLowerCase() + "/" + pos.charAt(0);
             } else {
-                return lemma;// + "/" + pos.charAt(0);
+                return lemma + "/" + pos.charAt(0);
             }
         } else {
             if (useLowerCase) {
-                return word.toLowerCase();// + "/" + pos;
+                return word.toLowerCase() + "/" + pos;
             } else {
-                return word;// + "/" + pos;
+                return word + "/" + pos;
             }
         }
     }
@@ -72,5 +74,36 @@ public class WordToken implements Comparable<WordToken> {
     @Override
     public int compareTo(WordToken o) {
         return toString().compareTo(o.toString());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof WordToken) {
+            return toString().equals(obj.toString());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }    
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(word);
+        out.writeObject(lemma);
+        out.writeObject(pos);
+        out.writeBoolean(lemmatized);
+        out.writeBoolean(useLowerCase);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        word=(String) in.readObject();
+        lemma=(String) in.readObject();
+        pos=(String) in.readObject();
+        lemmatized=in.readBoolean();
+        useLowerCase=in.readBoolean();
     }
 }
